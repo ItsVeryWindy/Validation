@@ -1,27 +1,37 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.Immutable;
+using System.Linq.Expressions;
 
 namespace Validation
 {
     internal class ValidatorBuilderContext : IValidatorBuilderContext
     {
-        public IFieldInfoBuilderFactory FieldInfoBuilderFactory { get; }
+        public IFieldInfoFactory FieldInfoFactory { get; }
         public IServiceProvider ServiceProvider { get; }
-        public IReadOnlyDictionary<Type, IFieldInfoBuilder> Scopes => _scopes;
+        public PropertyBag Properties { get; }
 
-        private ImmutableDictionary<Type, IFieldInfoBuilder> _scopes;
-
-        public ValidatorBuilderContext(IFieldInfoBuilderFactory fieldInfoBuilderFactory, IServiceProvider serviceProvider, ImmutableDictionary<Type, IFieldInfoBuilder> scopes)
+        public ValidatorBuilderContext(IFieldInfoFactory fieldInfoFactory, IServiceProvider serviceProvider) : this(fieldInfoFactory, serviceProvider, new PropertyBag())
         {
-            FieldInfoBuilderFactory = fieldInfoBuilderFactory;
+            FieldInfoFactory = fieldInfoFactory;
             ServiceProvider = serviceProvider;
-            _scopes = scopes;
+            Properties = new PropertyBag();
         }
 
-        public IValidatorBuilderContext SetScope(IFieldInfoBuilder fieldInfoBuilder)
+        private ValidatorBuilderContext(IFieldInfoFactory fieldInfoBuilderFactory, IServiceProvider serviceProvider, PropertyBag properties)
         {
-            return new ValidatorBuilderContext(FieldInfoBuilderFactory, ServiceProvider, _scopes.SetItem(fieldInfoBuilder.Type, fieldInfoBuilder));
+            FieldInfoFactory = fieldInfoBuilderFactory;
+            ServiceProvider = serviceProvider;
+            Properties = properties;
+        }
+
+        public IValidatorBuilderContext Clone()
+        {
+            return new ValidatorBuilderContext(FieldInfoFactory, ServiceProvider, Properties.Clone());
+        }
+
+        public IFieldInfo CreateFieldInfo(LambdaExpression expression)
+        {
+            return FieldInfoFactory.Create(this, expression);
         }
     }
 }

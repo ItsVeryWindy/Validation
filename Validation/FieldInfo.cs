@@ -1,14 +1,20 @@
-﻿namespace Validation
+﻿using System;
+
+namespace Validation
 {
     internal class FieldInfo : IFieldInfo
     {
-        public bool IsInScope { get; set; }
+        public string Name { get; }
 
-        public string Property { get; }
+        public Type Type { get; }
 
-        public FieldInfo(string property)
+        public IReadOnlyPropertyBag Properties { get; }
+
+        public FieldInfo(string name, Type type, IReadOnlyPropertyBag properties)
         {
-            Property = property;
+            Name = name;
+            Type = type;
+            Properties = properties;
         }
     }
 }

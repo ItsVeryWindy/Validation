@@ -17,9 +17,9 @@ namespace Validation
             _validators = validators;
         }
 
-        public IEnumerable<ValidationError> Validate(IField<TParent> field)
+        public IEnumerable<ValidationError> Validate(IValidatorContext<TParent> context)
         {
-            var value = _getValue(field.Value);
+            var value = _getValue(context.Field.Value);
 
             if (value != null)
             {
@@ -27,13 +27,13 @@ namespace Validation
 
                 foreach (var i in value)
                 {
-                    var childFieldInfo = new FieldInfo($"{_info.Property}[{counter}]");
+                    var childFieldInfo = new FieldInfo($"{_info.Name}[{counter}]", null, context.Field.Properties);
 
-                    var child = field.CreateChildField(childFieldInfo, i);
+                    var child = context.Field.CreateChildField(childFieldInfo, i);
 
                     counter++;
 
-                    foreach (var j in _validators.SelectMany(x => x.Validate(child))) yield return j;
+                    foreach (var j in _validators.SelectMany(x => x.Validate(child.CreateValidatorContext()))) yield return j;
                 }
             }
         }

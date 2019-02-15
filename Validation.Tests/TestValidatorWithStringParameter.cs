@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using Validation.FieldResolvers;
 
 namespace Validation.Tests
 {
@@ -12,18 +13,18 @@ namespace Validation.Tests
 
     class TestValidatorWithStringParameter : IChildValidator<string>
     {
-        private readonly IResolvedField<string> _field;
+        private readonly IValidationParameter<string> _parameter;
 
-        public TestValidatorWithStringParameter(IResolvedField<string> field)
+        public TestValidatorWithStringParameter(IValidationParameter<string> parameter)
         {
-            _field = field;
+            _parameter = parameter;
         }
 
-        public IEnumerable<ValidationError> Validate(IField<string> field)
+        public IEnumerable<ValidationError> Validate(IValidatorContext<string> context)
         {
-            var value = field.Resolve(_field);
+            var value = context.Resolve(_parameter);
 
-            return field.CreateError("test_validator", value);
+            return context.CreateError("test_validator", value);
         }
     }
 }

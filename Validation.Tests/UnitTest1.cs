@@ -61,7 +61,7 @@ namespace Validation.Tests
             var builder = ValidatorBuilder<TestObject>.Create();
 
             builder.RulesFor(x => x.Test, rs => rs
-                .AddTestValidatorWithStringParameter(ResolveField.Static("test"))
+                .AddTestValidatorWithStringParameter(FieldResolver.Static("test"))
             );
 
             var validator = builder.Build(new TestServiceProvider());
@@ -253,26 +253,9 @@ namespace Validation.Tests
 
         private class TestValidator : IChildValidator<string>
         {
-            public IEnumerable<ValidationError> Validate(IField<string> field)
+            public IEnumerable<ValidationError> Validate(IValidatorContext<string> context)
             {
-                return field.CreateError("test_validator", "test validator");
-            }
-        }
-
-        private class TestValidatorWithStringParameter : IChildValidator<string>
-        {
-            private readonly IResolvedField<string> _field;
-
-            public TestValidatorWithStringParameter(IResolvedField<string> field)
-            {
-                _field = field;
-            }
-
-            public IEnumerable<ValidationError> Validate(IField<string> field)
-            {
-                var value = field.Resolve(_field);
-
-                return field.CreateError("test_validator", value);
+                return context.CreateError("test_validator", "test validator");
             }
         }
 

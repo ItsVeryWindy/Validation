@@ -17,9 +17,9 @@ namespace Validation
 
         public abstract bool IsValid(T value);
 
-        public IEnumerable<ValidationError> Validate(IField<T> field)
+        public IEnumerable<ValidationError> Validate(IValidatorContext<T> context)
         {
-            return IsValid(field.Value) ? Enumerable.Empty<ValidationError>() : field.CreateError(_key, _format);
+            return IsValid(context.Field.Value) ? Enumerable.Empty<ValidationError>() : context.CreateError(_key, _format);
         }
     }
 }

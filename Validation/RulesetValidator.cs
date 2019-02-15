@@ -23,7 +23,7 @@ namespace Validation
         {
             var child = field.CreateChildField(_info, _getValue(field.Value), _getOriginalValue(field));
 
-            return _validators.SelectMany(x => x.Validate(child));
+            return _validators.SelectMany(x => x.Validate(child.CreateValidatorContext()));
         }
     }
 }

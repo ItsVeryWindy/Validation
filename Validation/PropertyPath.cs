@@ -17,7 +17,7 @@ namespace Validation
 
         public PropertyPath Append(IFieldInfo info)
         {
-            if (info == _info || info.Property == null)
+            if (info == _info || info.Name == null)
                 return this;
 
             return new PropertyPath(info, this);
@@ -37,7 +37,7 @@ namespace Validation
             if (this == Root)
                 return;
 
-            builder.Insert(0, _info.Property);
+            builder.Insert(0, _info.Name);
 
             if(_parent != Root)
             {

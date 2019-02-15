@@ -4,6 +4,6 @@ namespace Validation
 {
     public interface IChildValidator<T>
     {
-        IEnumerable<ValidationError> Validate(IField<T> field);
+        IEnumerable<ValidationError> Validate(IValidatorContext<T> context);
     }
 }

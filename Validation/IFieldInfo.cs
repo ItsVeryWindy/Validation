@@ -1,8 +1,11 @@
-﻿namespace Validation
+﻿using System;
+
+namespace Validation
 {
     public interface IFieldInfo
     {
-        string Property { get; }
-        bool IsInScope { get; }
+        string Name { get; }
+        Type Type { get; }
+        IReadOnlyPropertyBag Properties { get; }
     }
 }

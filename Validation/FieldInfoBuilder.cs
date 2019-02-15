@@ -4,22 +4,37 @@ namespace Validation
 {
     public class FieldInfoBuilder : IFieldInfoBuilder
     {
-        private FieldInfo _fieldInfo;
+        public IFieldInfoBuilder Parent { get; }
 
-        public bool IsInScope
-        {
-            get => _fieldInfo.IsInScope;
-            set => _fieldInfo.IsInScope = value;
-        }
-
-        public IFieldInfo FieldInfo => _fieldInfo;
+        public string Name { get; }
 
         public Type Type { get; }
 
-        public FieldInfoBuilder(string property, Type type)
+        public PropertyBag Properties { get; }
+
+        public event FieldCreatedEventHandler FieldCreated;
+
+        public FieldInfoBuilder(string name, Type type) : this(name, type, null)
         {
-            _fieldInfo = new FieldInfo(property);
+
+        }
+
+        private FieldInfoBuilder(string name, Type type, IFieldInfoBuilder parent)
+        {
+            Name = name;
             Type = type;
+            Parent = parent;
+            Properties = new PropertyBag();
+        }
+
+        public IFieldInfo Build()
+        {
+            return new FieldInfo(Name, Type, new ReadOnlyPropertyBag(Properties));
+        }
+
+        public IFieldInfoBuilder CreateChildFieldInfoBuilder(string name, Type type)
+        {
+            return new FieldInfoBuilder(name, type, this);
         }
     }
 }

@@ -25,7 +25,7 @@ namespace Validation
         {
             var overrideField = field.CreateChildField(field.Info, field.Value, field.OriginalValue, new StaticMessageFactory(_message));
 
-            return _validator.Validate(overrideField);
+            return _validator.Validate(overrideField.CreateValidatorContext());
         }
 
         class StaticMessageFactory : IErrorMessageFactory

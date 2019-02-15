@@ -9,29 +9,26 @@ namespace Validation
     public class ObjectValidator<T> : IValidator<T>, IChildValidator<T>
     {
         private readonly IErrorMessageFactory _errorMessageFactory;
+        private readonly IFieldInfo _root;
         private readonly IEnumerable<IChildValidator<T>> _validators;
 
-        public ObjectValidator(IErrorMessageFactory errorMessageFactory, IEnumerable<IChildValidator<T>> validators)
+        public ObjectValidator(IErrorMessageFactory errorMessageFactory, IFieldInfo root, IEnumerable<IChildValidator<T>> validators)
         {
             _errorMessageFactory = errorMessageFactory;
+            _root = root;
             _validators = validators;
-        }
-
-        public IEnumerable<ValidationError> Validate(IField<T> field)
-        {
-            return _validators.SelectMany(x => x.Validate(field));
         }
 
         public ICollection<ValidationError> Validate(T value)
         {
-            var fieldResolver = new FieldResolver();
+            var field = new Field<T>(_root, PropertyPath.Root, _errorMessageFactory, value);
 
-            var fieldInfo = new FieldInfo(null)
-            {
-                IsInScope = true
-            };
+            return Validate(field.CreateValidatorContext()).ToList();
+        }
 
-            return Validate(new Field<T>(fieldInfo, fieldResolver, PropertyPath.Root, _errorMessageFactory, value)).ToList();
+        public IEnumerable<ValidationError> Validate(IValidatorContext<T> context)
+        {
+            return _validators.SelectMany(x => x.Validate(context.Field.CreateValidatorContext()));
         }
     }
 }

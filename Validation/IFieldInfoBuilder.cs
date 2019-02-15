@@ -4,8 +4,16 @@ namespace Validation
 {
     public interface IFieldInfoBuilder
     {
-        bool IsInScope { get; set; }
-        IFieldInfo FieldInfo { get; }
+        IFieldInfoBuilder Parent { get; }
+
+        string Name { get; }
+
         Type Type { get; }
+
+        PropertyBag Properties { get; }
+
+        IFieldInfoBuilder CreateChildFieldInfoBuilder(string name, Type type);
+
+        IFieldInfo Build(IFieldInfo parent);
     }
 }

@@ -22,17 +22,16 @@ namespace Validation
         public IValidator<T> Build(IServiceProvider serviceProvider)
         {
             var root = new FieldInfoBuilder(null, typeof(T));
-            var scopes = ImmutableDictionary<Type, IFieldInfoBuilder>.Empty.Add(typeof(T), root);
 
             var propertyNameGenerator = new PropertyNameGenerator();
 
-            var fieldInfoBuilderFactory = new FieldInfoBuilderFactory(propertyNameGenerator);
+            var fieldInfoBuilderFactory = new FieldInfoFactory(propertyNameGenerator);
 
-            var context = new ValidatorBuilderContext(fieldInfoBuilderFactory, serviceProvider, scopes);
+            var context = new ValidatorBuilderContext(fieldInfoBuilderFactory, serviceProvider);
 
             var validators = _validatorBuilders.Select(x => x.Build(context)).ToList();
 
-            return new ObjectValidator<T>(new ErrorMessageFactory(), validators);
+            return new ObjectValidator<T>(new ErrorMessageFactory(), root.Build(), validators);
         }
 
         public IObjectValidatorBuilder<T> If(Func<T, bool> condition, Action<IObjectValidatorBuilder<T>> action)

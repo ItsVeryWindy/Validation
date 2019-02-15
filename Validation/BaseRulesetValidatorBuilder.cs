@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using Validation.ValidationParameters;
 
 namespace Validation
 {
@@ -90,25 +91,27 @@ namespace Validation
         {
             var type = arg.GetType();
 
-            var iface = type.GetInterfaces().FirstOrDefault(x => x.IsGenericType && x.GetGenericTypeDefinition() == typeof(IResolvedFieldBuilder<>));
+            var iface = type.GetInterfaces().FirstOrDefault(x => x.IsGenericType && x.GetGenericTypeDefinition() == typeof(IValidatorParameterBuilder<>));
 
             if (iface == null)
                 return null;
 
-            return iface.GetMethod(nameof(IResolvedFieldBuilder<object>.Build), new Type[] { typeof(IValidatorBuilderContext) });
+            return iface.GetMethod(nameof(IValidatorParameterBuilder<object>.Build), new Type[] { typeof(IValidatorBuilderContext) });
         }
 
         protected abstract IChildValidator<TParent> Build(IValidatorBuilderContext context, IFieldInfo fieldInfo, ICollection<IChildValidator<TChild>> validators);
 
         public IChildValidator<TParent> Build(IValidatorBuilderContext context)
         {
-            var fieldInfoBuilder = context.FieldInfoBuilderFactory.Create(_expression);
+            context = context.Clone();
 
-            context = context.SetScope(fieldInfoBuilder);
+            var fieldInfo = context.CreateFieldInfo(_expression);
+
+            //context.Visitors.VisitBuildField(context, fieldInfoBuilder);
 
             var validators = _validatorFactories.Select(x => x(context)).ToList();
 
-            return Build(context, fieldInfoBuilder.FieldInfo, _validatorFactories.Select(x => x(context)).ToList());
+            return Build(context, fieldInfo, _validatorFactories.Select(x => x(context)).ToList());
         }
     }
 }
